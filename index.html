@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sci-Converter | 과학 공식 & 단위 변환기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 배경 및 브라우저 기본 넘버 스핀 버튼 제거 */
+        body {
+            background-color: #0b1329;
+            color: #f8fafc;
+        }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        .custom-glow-cyan {
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.1);
+        }
+        .custom-glow-emerald {
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased bg-[#0b132b] text-slate-100 flex flex-col justify-between relative">
+
+    <div class="max-w-7xl mx-auto px-4 py-8 w-full">
+        
+        <!-- 헤더 및 상단 방문자수 영역 -->
+        <header class="text-center mb-10 border-b border-slate-800 pb-6 relative">
+            <!-- 방문자수 위젯 (우측 상단 배치) -->
+            <div class="md:absolute md:top-0 md:right-0 mb-4 md:mb-0 flex justify-center items-center space-x-3 bg-slate-900/80 border border-slate-800/80 rounded-2xl px-4 py-2 text-xs backdrop-blur-md shadow-lg">
+                <div class="flex items-center space-x-1">
+                    <span class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                    <span class="text-slate-400">오늘 방문자:</span>
+                    <span id="visitor-today" class="text-cyan-400 font-extrabold font-mono text-sm">로드 중...</span>
+                </div>
+                <div class="border-l border-slate-800 h-4"></div>
+                <div class="flex items-center space-x-1">
+                    <span class="text-slate-400">총 방문자:</span>
+                    <span id="visitor-total" class="text-emerald-400 font-extrabold font-mono text-sm">로드 중...</span>
+                </div>
+            </div>
+
+            <h1 class="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 mb-2">
+                Sci-Converter
+            </h1>
+            <p class="text-slate-400 text-sm md:text-base">물리 · 화학 · 공학 공식 실시간 계산 및 종합 단위 변환기</p>
+        </header>
+
+        <!-- 탭 전환 버튼 -->
+        <div class="flex justify-center space-x-4 mb-8">
+            <button id="tab-btn-formula" onclick="switchTab('formula')" class="px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 bg-cyan-600 text-white shadow-lg shadow-cyan-950/50 transform hover:scale-[1.02]">
+                과학 공식 계산기
+            </button>
+            <button id="tab-btn-unit" onclick="switchTab('unit')" class="px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 bg-slate-800 text-slate-400 hover:bg-slate-700 transform hover:scale-[1.02]">
+                공학 단위 변환기
+            </button>
+        </div>
+
+        <!-- ================= [1. 과학 공식 계산기 섹션] ================= -->
+        <div id="section-formula" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-300">
+            
+            <!-- 1. 오옴의 법칙 -->
+            <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 backdrop-blur-md custom-glow-cyan flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-lg font-bold text-cyan-400">오옴의 법칙</h3>
+                        <span class="text-xs font-mono bg-cyan-950/60 text-cyan-300 border border-cyan-800/50 px-2 py-1 rounded-lg">V = I × R</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-4">* 구하려는 변수 1개를 비워두고 값을 입력한 뒤 계산을 누르세요.</p>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">전압 (Voltage, V)</label>
+                            <div class="relative">
+                                <input type="number" step="any" id="ohm-v" placeholder="비워두기" class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-500 rounded-lg p-2 text-white pr-10 text-sm outline-none transition-all">
+                                <span class="absolute right-3 top-2 text-slate-500 text-xs">V</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">전류 (Current, I)</label>
+                            <div class="relative">
+                                <input type="number" step="any" id="ohm-i" placeholder="비워두기" class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-500 rounded-lg p-2 text-white pr-10 text-sm outline-none transition-all">
+                                <span class="absolute right-3 top-2 text-slate-500 text-xs">A</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">저항 (Resistance, R)</label>
+                            <div class="relative">
+                                <input type="number" step="any" id="ohm-r" placeholder="비워두기" class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-500 rounded-lg p-2 text-white pr-10 text-sm outline-none transition-all">
+                                <span class="absolute right-3 top-2 text-slate-500 text-xs">Ω</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="grid grid-cols-3 gap-2 mt-4">
+                        <button onclick="calculateOhm()" class="col-span-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2 rounded-lg transition text-sm active:scale-95">계산</button>
+                        <button onclick="resetOhm()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-2 rounded-lg transition text-sm active:scale-95">리셋</button>
+                    </div>
+                    <div id="ohm-error" class="text-xs text-rose-400 min-h-[16px] mt-1.5 text-center font-medium"></div>
+                </div>
+            </div>
+
+            <!-- 2. 뉴턴 제2법칙 -->
+            <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 backdrop-blur-md custom-glow-cyan flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-lg font-bold text-cyan-400">뉴턴 제2법칙</h3>
+                        <span class="text-xs font-mono bg-cyan-950/60 text-cyan-300 border border-cyan-800/50 px-2 py-1 rounded-lg">F = m × a</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-4">* 구하려는 변수 1개를 비워두고 값을 입력한 뒤 계산을 누르세요.</p>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">힘 (Force, F)</label>
+                            <div class="relative">
+                                <input type="number" step="any" id="fma-f" placeholder="비워두기" class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-500 rounded-lg p-2 text-white pr-10 text-sm outline-none transition-all">
+                                <span class="absolute right-3 top-2 text-slate-500 text-xs">N</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">질량 (Mass, m)</label>
+                            <div class="relative">
+                                <input type="number" step="any" id="fma-m" placeholder="비워두기" class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-500 rounded-lg p-2 text-white pr-10 text-sm outline-none transition-all">
+                                <span class="absolute right-3 top-2 text-slate-500 text-xs">kg</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">가속도 (Acceleration, a)</label>
+                            <div class="relative">
+                                <input type="number" step="any" id="fma-a" placeholder="비워두기" class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-500 rounded-lg p-2 text-white pr-10 text-sm outline-none transition-all">
+                                <span class="absolute right-3 top-2 text-slate-500 text-xs">m/s²</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="grid grid-cols-3 gap-2 mt-4">
+                        <button onclick="calculateFma()" class="col-span-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2 rounded-lg transition text-sm active:scale-95">계산</button>
+                        <button onclick="resetFma()" class="bg-slate-800 hover:bg-slate-750 text-slate-300 font-semibold py-2 rounded-lg transition text-sm active:scale-95">리셋</button>
+                    </div>
+                    <div id="fma-error" class="text-xs text-rose-400 min-h-[16px] mt-1.5 text-center font-medium"></div>
+                </div>
+            </div>
+
+            <!-- 3. 운동 에너지 -->
+            <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 backdrop-blur-md custom-glow-cyan flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-lg font-bold text-cyan-400">운동 에너지</h3>
+                        <span class="text-xs font-mono bg-cyan-950/60 text-cyan-300 border border-cyan-800/50 px-2 py-1 rounded-lg">Ek = ½ × m × v²</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-4">* 구하려는 변수 1개를 비워두고 값을 입력한 뒤 계산을 누르세요.</p>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">운동에너지 (Energy, Ek)</label>
+                            <div class="relative">
+                                <input type="number" step="any" id="ek-e" placeholder="비워두기" class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-500 rounded-lg p-2 text-white pr-10 text-sm outline-none transition-all">
+                                <span class="absolute right-3 top-2 text-slate-500 text-xs">J</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">질량 (Mass, m)</label>
+                            <div class="relative">
+                                <input type="number" step="any" id="ek-m" placeholder="비워두기" class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-500 rounded-lg p-2 text-white pr-10 text-sm outline-none transition-all">
+                                <span class="absolute right-3 top-2 text-slate-500 text-xs">kg</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">속도 (Velocity, v)</label>
+                            <div class="relative">
+                                <input type="number" step="any" id="ek-v" placeholder="비워두기" class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-500 rounded-lg p-2 text-white pr-10 text-sm outline-none transition-all">
+                                <span class="absolute right-3 top-2 text-slate-500 text-xs">m/s</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="grid grid-cols-3 gap-2 mt-4">
+                        <button onclick="calculateEk()" class="col-span-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2 rounded-lg transition text-sm active:scale-95">계산</button>
+                        <button onclick="resetEk()" class="bg-slate-800 hover:bg-slate-750 text-slate-300 font-semibold py-2 rounded-lg transition text-sm active:scale-95">리셋</button>
+                    </div>
+                    <div id="ek-error" class="text-xs text-rose-400 min-h-[16px] mt-1.5 text-center font-medium"></div>
+                </div>
+            </div>
+
+            <!-- 4. 이상기체 상태방정식 -->
+            <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 backdrop-blur-md custom-glow-cyan flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-lg font-bold text-cyan-400">이상기체 상태방정식</h3>
+                        <span class="text-xs font-mono bg-cyan-950/60 text-cyan-300 border border-cyan-800/50 px-2 py-1 rounded-lg">PV = nRT</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-4">* 구하려는 변수 1개를 비워두세요. (R ≈ 0.0821 L·atm/(mol·K))</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">압력 (P)</label>
+                            <div class="relative">
+                                <input type="number" step="any" id="gas-p" placeholder="비워두기" class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-500 rounded-lg p-2 text-white pr-10 text-sm outline-none transition-all">
+                                <span class="absolute right-2 top-2 text-slate-500 text-[10px]">atm</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">부피 (V)</label>
+                            <div class="relative">
+                                <input type="number" step="any" id="gas-v" placeholder="비워두기" class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-500 rounded-lg p-2 text-white pr-6 text-sm outline-none transition-all">
+                                <span class="absolute right-2 top-2 text-slate-500 text-[10px]">L</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">몰수 (n)</label>
+                            <div class="relative">
+                                <input type="number" step="any" id="gas-n" placeholder="비워두기" class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-500 rounded-lg p-2 text-white pr-8 text-sm outline-none transition-all">
+                                <span class="absolute right-2 top-2 text-slate-500 text-[10px]">mol</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">온도 (T)</label>
+                            <div class="relative">
+                                <input type="number" step="any" id="gas-t" placeholder="비워두기" class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-500 rounded-lg p-2 text-white pr-6 text-sm outline-none transition-all">
+                                <span class="absolute right-2 top-2 text-slate-500 text-[10px]">K</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="grid grid-cols-3 gap-2 mt-4">
+                        <button onclick="calculateGas()" class="col-span-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2 rounded-lg transition text-sm active:scale-95">계산</button>
+                        <button onclick="resetGas()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-2 rounded-lg transition text-sm active:scale-95">리셋</button>
+                    </div>
+                    <div id="gas-error" class="text-xs text-rose-400 min-h-[16px] mt-1.5 text-center font-medium"></div>
+                </div>
+            </div>
+
+            <!-- 5. 파동 방정식 -->
+            <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 backdrop-blur-md custom-glow-cyan flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-lg font-bold text-cyan-400">파동 방정식</h3>
+                        <span class="text-xs font-mono bg-cyan-950/60 text-cyan-300 border border-cyan-800/50 px-2 py-1 rounded-lg">v = f × λ</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-4">* 구하려는 변수 1개를 비워두고 값을 입력한 뒤 계산을 누르세요.</p>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">파동 속도 (Velocity, v)</label>
+                            <div class="relative">
+                                <input type="number" step="any" id="wave-v" placeholder="비워두기" class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-500 rounded-lg p-2 text-white pr-10 text-sm outline-none transition-all">
+                                <span class="absolute right-3 top-2 text-slate-500 text-xs">m/s</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">진동수 (Frequency, f)</label>
+                            <div class="relative">
+                                <input type="number" step="any" id="wave-f" placeholder="비워두기" class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-500 rounded-lg p-2 text-white pr-10 text-sm outline-none transition-all">
+                                <span class="absolute right-3 top-2 text-slate-500 text-xs">Hz</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">파장 (Wavelength, λ)</label>
+                            <div class="relative">
+                                <input type="number" step="any" id="wave-l" placeholder="비워두기" class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-500 rounded-lg p-2 text-white pr-10 text-sm outline-none transition-all">
+                                <span class="absolute right-3 top-2 text-slate-500 text-xs">m</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="grid grid-cols-3 gap-2 mt-4">
+                        <button onclick="calculateWave()" class="col-span-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2 rounded-lg transition text-sm active:scale-95">계산</button>
+                        <button onclick="resetWave()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-2 rounded-lg transition text-sm active:scale-95">리셋</button>
+                    </div>
+                    <div id="wave-error" class="text-xs text-rose-400 min-h-[16px] mt-1.5 text-center font-medium"></div>
+                </div>
+            </div>
+
+            <!-- 6. 물질의 밀도 -->
+            <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 backdrop-blur-md custom-glow-cyan flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-lg font-bold text-cyan-400">물질의 밀도</h3>
+                        <span class="text-xs font-mono bg-cyan-950/60 text-cyan-300 border border-cyan-800/50 px-2 py-1 rounded-lg">d = m / V</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-4">* 구하려는 변수 1개를 비워두고 값을 입력한 뒤 계산을 누르세요.</p>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">밀도 (Density, d)</label>
+                            <div class="relative">
+                                <input type="number" step="any" id="dens-d" placeholder="비워두기" class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-500 rounded-lg p-2 text-white pr-16 text-sm outline-none transition-all">
+                                <span class="absolute right-3 top-2 text-slate-500 text-[10px]">g/cm³</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">질량 (Mass, m)</label>
+                            <div class="relative">
+                                <input type="number" step="any" id="dens-m" placeholder="비워두기" class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-500 rounded-lg p-2 text-white pr-10 text-sm outline-none transition-all">
+                                <span class="absolute right-3 top-2 text-slate-500 text-xs">g</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">부피 (Volume, V)</label>
+                            <div class="relative">
+                                <input type="number" step="any" id="dens-v" placeholder="비워두기" class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-500 rounded-lg p-2 text-white pr-10 text-sm outline-none transition-all">
+                                <span class="absolute right-3 top-2 text-slate-500 text-[10px]">cm³</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="grid grid-cols-3 gap-2 mt-4">
+                        <button onclick="calculateDens()" class="col-span-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2 rounded-lg transition text-sm active:scale-95">계산</button>
+                        <button onclick="resetDens()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-2 rounded-lg transition text-sm active:scale-95">리셋</button>
+                    </div>
+                    <div id="dens-error" class="text-xs text-rose-400 min-h-[16px] mt-1.5 text-center font-medium"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================= [2. 공학 단위 변환기 섹션] ================= -->
+        <div id="section-unit" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden transition-all duration-300">
+            
+            <!-- 1. 압력 단위 실시간 변환 -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 backdrop-blur-md custom-glow-emerald flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-5">
+                        <h3 class="text-lg font-bold text-emerald-400">압력 변환 (실시간)</h3>
+                        <button onclick="resetPressureUnits()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg font-semibold transition-all">리셋</button>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">atm (표준 기압)</label>
+                            <input type="number" step="any" id="unit-atm" oninput="convertPressure('atm')" placeholder="0" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-lg p-2 text-white text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">psi (Pounds/sq inch)</label>
+                            <input type="number" step="any" id="unit-psi" oninput="convertPressure('psi')" placeholder="0" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-lg p-2 text-white text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">bar (바)</label>
+                            <input type="number" step="any" id="unit-bar" oninput="convertPressure('bar')" placeholder="0" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-lg p-2 text-white text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Pa (파스칼)</label>
+                            <input type="number" step="any" id="unit-pa" oninput="convertPressure('pa')" placeholder="0" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-lg p-2 text-white text-sm outline-none">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 에너지/열량 단위 실시간 변환 -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 backdrop-blur-md custom-glow-emerald flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-5">
+                        <h3 class="text-lg font-bold text-emerald-400">에너지 / 열량 변환 (실시간)</h3>
+                        <button onclick="resetEnergyUnits()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg font-semibold transition-all">리셋</button>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">J (줄, Joules)</label>
+                            <input type="number" step="any" id="unit-j" oninput="convertEnergy('j')" placeholder="0" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-lg p-2 text-white text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">cal (칼로리)</label>
+                            <input type="number" step="any" id="unit-cal" oninput="convertEnergy('cal')" placeholder="0" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-lg p-2 text-white text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">kcal (킬로칼로리)</label>
+                            <input type="number" step="any" id="unit-kcal" oninput="convertEnergy('kcal')" placeholder="0" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-lg p-2 text-white text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Wh (와트시)</label>
+                            <input type="number" step="any" id="unit-wh" oninput="convertEnergy('wh')" placeholder="0" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-lg p-2 text-white text-sm outline-none">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 길이 단위 실시간 변환 -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 backdrop-blur-md custom-glow-emerald flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-5">
+                        <h3 class="text-lg font-bold text-emerald-400">길이 변환 (실시간)</h3>
+                        <button onclick="resetLengthUnits()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg font-semibold transition-all">리셋</button>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">m (미터)</label>
+                            <input type="number" step="any" id="unit-m" oninput="convertLength('m')" placeholder="0" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-lg p-2 text-white text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">cm (센티미터)</label>
+                            <input type="number" step="any" id="unit-cm" oninput="convertLength('cm')" placeholder="0" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-lg p-2 text-white text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">mm (밀리미터)</label>
+                            <input type="number" step="any" id="unit-mm" oninput="convertLength('mm')" placeholder="0" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-lg p-2 text-white text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">inch (인치)</label>
+                            <input type="number" step="any" id="unit-inch" oninput="convertLength('inch')" placeholder="0" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-lg p-2 text-white text-sm outline-none">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. 온도 단위 실시간 변환 -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 backdrop-blur-md custom-glow-emerald flex flex-col justify-between lg:col-span-3">
+                <div>
+                    <div class="flex justify-between items-center mb-5">
+                        <h3 class="text-lg font-bold text-emerald-400">온도 변환 (물리 수식 기반)</h3>
+                        <button onclick="resetTempUnits()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg font-semibold transition-all">리셋</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">섭씨 온도 (°C)</label>
+                            <input type="number" step="any" id="unit-c" oninput="convertTemperature('c')" placeholder="0" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-lg p-3 text-white text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">화씨 온도 (°F)</label>
+                            <input type="number" step="any" id="unit-f" oninput="convertTemperature('f')" placeholder="32" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-lg p-3 text-white text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">절대 온도 (Kelvin, K)</label>
+                            <input type="number" step="any" id="unit-k" oninput="convertTemperature('k')" placeholder="273.15" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-lg p-3 text-white text-sm outline-none">
+                        </div>
+                    </div>
+                    <div id="temp-error" class="text-xs text-rose-400 min-h-[16px] mt-2 text-center font-medium"></div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- 푸터 영역 -->
+    <footer class="text-center py-6 border-t border-slate-900 bg-slate-950/40 text-xs text-slate-500 w-full mt-12">
+        <p>© 2026 Sci-Converter. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // ----------------- [실시간 방문자 DB 연동부] -----------------
+        // [필독!] Google Apps Script를 웹앱으로 배포한 후 생성된 URL을 아래 빈값("") 안에 붙여넣으세요.
+        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxTBwkPPqF0O2LIsc06kWd3UAaxXvmtjOJcCbdkxREkhiFbFFC4PrXmt1WK2nJUtxm1/exec"; 
+
+        async function updateVisitorStats() {
+            const todayEl = document.getElementById('visitor-today');
+            const totalEl = document.getElementById('visitor-total');
+
+            if (!GAS_WEBAPP_URL) {
+                todayEl.innerText = "연동 전";
+                totalEl.innerText = "연동 전";
+                console.log("실시간 연동을 활성화하려면 index.html 상단의 GAS_WEBAPP_URL 변수에 배포된 웹앱 주소를 넣어주세요.");
+                return;
+            }
+
+            try {
+                const response = await fetch(GAS_WEBAPP_URL);
+                if (!response.ok) throw new Error("API 요청 실패");
+                const data = await response.json();
+                
+                if (data.success) {
+                    todayEl.innerText = data.today.toLocaleString() + " 명";
+                    totalEl.innerText = data.total.toLocaleString() + " 명";
+                } else {
+                    throw new Error("서버 데이터 파싱 실패");
+                }
+            } catch (err) {
+                console.error("방문자 카운트 로딩 실패:", err);
+                todayEl.innerText = "오류";
+                totalEl.innerText = "오류";
+            }
+        }
+
+        // 페이지 로딩 시 방문자 카운트 통계 함수 실행
+        window.addEventListener('DOMContentLoaded', updateVisitorStats);
+
+
+        // 1. 탭 전환 기능
+        function switchTab(tab) {
+            const formulaSec = document.getElementById('section-formula');
+            const unitSec = document.getElementById('section-unit');
+            const formulaBtn = document.getElementById('tab-btn-formula');
+            const unitBtn = document.getElementById('tab-btn-unit');
+
+            if (tab === 'formula') {
+                formulaSec.classList.remove('hidden');
+                unitSec.classList.add('hidden');
+                formulaBtn.className = "px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 bg-cyan-600 text-white shadow-lg shadow-cyan-950/50 transform hover:scale-[1.02]";
+                unitBtn.className = "px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 bg-slate-800 text-slate-400 hover:bg-slate-700/80 transform hover:scale-[1.02]";
+            } else {
+                formulaSec.classList.add('hidden');
+                unitSec.classList.remove('hidden');
+                unitBtn.className = "px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 bg-emerald-600 text-white shadow-lg shadow-emerald-950/50 transform hover:scale-[1.02]";
+                formulaBtn.className = "px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 bg-slate-800 text-slate-400 hover:bg-slate-700/80 transform hover:scale-[1.02]";
+            }
+        }
+
+        // 2. 오옴의 법칙 계산 (V = I * R)
+        function calculateOhm() {
+            const vInput = document.getElementById('ohm-v');
+            const iInput = document.getElementById('ohm-i');
+            const rInput = document.getElementById('ohm-r');
+            const errorDiv = document.getElementById('ohm-error');
+            errorDiv.innerText = "";
+
+            let v = vInput.value ? parseFloat(vInput.value) : null;
+            let i = iInput.value ? parseFloat(iInput.value) : null;
+            let r = rInput.value ? parseFloat(rInput.value) : null;
+
+            let inputs = [v, i, r].filter(val => val !== null).length;
+
+            if (inputs !== 2) {
+                errorDiv.innerText = "정확히 두 개의 값만 입력하세요.";
+                return;
+            }
+
+            if (v === null) {
+                vInput.value = (i * r).toFixed(4);
+            } else if (i === null) {
+                if (r === 0) { errorDiv.innerText = "저항은 0이 될 수 없습니다."; return; }
+                iInput.value = (v / r).toFixed(4);
+            } else if (r === null) {
+                if (i === 0) { errorDiv.innerText = "전류는 0이 될 수 없습니다."; return; }
+                rInput.value = (v / i).toFixed(4);
+            }
+        }
+
+        // 초기화
+        function resetOhm() {
+            document.getElementById('ohm-v').value = "";
+            document.getElementById('ohm-i').value = "";
+            document.getElementById('ohm-r').value = "";
+            document.getElementById('ohm-error').innerText = "";
+        }
+
+        // 3. 뉴턴 제2법칙 계산 (F = m * a)
+        function calculateFma() {
+            const fInput = document.getElementById('fma-f');
+            const mInput = document.getElementById('fma-m');
+            const aInput = document.getElementById('fma-a');
+            const errorDiv = document.getElementById('fma-error');
+            errorDiv.innerText = "";
+
+            let f = fInput.value ? parseFloat(fInput.value) : null;
+            let m = mInput.value ? parseFloat(mInput.value) : null;
+            let a = aInput.value ? parseFloat(aInput.value) : null;
+
+            let inputs = [f, m, a].filter(val => val !== null).length;
+
+            if (inputs !== 2) {
+                errorDiv.innerText = "정확히 두 개의 값만 입력하세요.";
+                return;
+            }
+
+            if (f === null) {
+                fInput.value = (m * a).toFixed(4);
+            } else if (m === null) {
+                if (a === 0) { errorDiv.innerText = "가속도가 0일 때 질량을 구할 수 없습니다."; return; }
+                mInput.value = (f / a).toFixed(4);
+            } else if (a === null) {
+                if (m === 0) { errorDiv.innerText = "질량은 0이 될 수 없습니다."; return; }
+                aInput.value = (f / m).toFixed(4);
+            }
+        }
+
+        function resetFma() {
+            document.getElementById('fma-f').value = "";
+            document.getElementById('fma-m').value = "";
+            document.getElementById('fma-a').value = "";
+            document.getElementById('fma-error').innerText = "";
+        }
+
+        // 4. 운동에너지 공식 계산 (Ek = 0.5 * m * v^2)
+        function calculateEk() {
+            const eInput = document.getElementById('ek-e');
+            const mInput = document.getElementById('ek-m');
+            const vInput = document.getElementById('ek-v');
+            const errorDiv = document.getElementById('ek-error');
+            errorDiv.innerText = "";
+
+            let e = eInput.value ? parseFloat(eInput.value) : null;
+            let m = mInput.value ? parseFloat(mInput.value) : null;
+            let v = vInput.value ? parseFloat(vInput.value) : null;
+
+            let inputs = [e, m, v].filter(val => val !== null).length;
+
+            if (inputs !== 2) {
+                errorDiv.innerText = "정확히 두 개의 값만 입력하세요.";
+                return;
+            }
+
+            if (e === null) {
+                if (m < 0) { errorDiv.innerText = "질량은 음수가 될 수 없습니다."; return; }
+                eInput.value = (0.5 * m * v * v).toFixed(4);
+            } else if (m === null) {
+                if (v === 0) { errorDiv.innerText = "속도가 0일 때 질량을 구할 수 없습니다."; return; }
+                if (e < 0) { errorDiv.innerText = "고전역학 운동에너지는 음수가 될 수 없습니다."; return; }
+                mInput.value = ((2 * e) / (v * v)).toFixed(4);
+            } else if (v === null) {
+                if (m <= 0) { errorDiv.innerText = "질량은 0보다 커야 합니다."; return; }
+                if (e < 0) { errorDiv.innerText = "에너지가 음수이면 속도를 구할 수 없습니다."; return; }
+                vInput.value = Math.sqrt((2 * e) / m).toFixed(4);
+            }
+        }
+
+        function resetEk() {
+            document.getElementById('ek-e').value = "";
+            document.getElementById('ek-m').value = "";
+            document.getElementById('ek-v').value = "";
+            document.getElementById('ek-error').innerText = "";
+        }
+
+        // 5. 이상기체 상태방정식 계산 (PV = nRT, R = 0.0821)
+        function calculateGas() {
+            const pInput = document.getElementById('gas-p');
+            const vInput = document.getElementById('gas-v');
+            const nInput = document.getElementById('gas-n');
+            const tInput = document.getElementById('gas-t');
+            const errorDiv = document.getElementById('gas-error');
+            errorDiv.innerText = "";
+
+            const R = 0.0821;
+
+            let p = pInput.value ? parseFloat(pInput.value) : null;
+            let v = vInput.value ? parseFloat(vInput.value) : null;
+            let n = nInput.value ? parseFloat(nInput.value) : null;
+            let t = tInput.value ? parseFloat(tInput.value) : null;
+
+            let inputs = [p, v, n, t].filter(val => val !== null).length;
+
+            if (inputs !== 3) {
+                errorDiv.innerText = "정확히 세 개의 값만 입력하세요.";
+                return;
+            }
+
+            if (p === null) {
+                if (v === 0) { errorDiv.innerText = "부피는 0이 될 수 없습니다."; return; }
+                pInput.value = ((n * R * t) / v).toFixed(5);
+            } else if (v === null) {
+                if (p === 0) { errorDiv.innerText = "압력은 0이 될 수 없습니다."; return; }
+                vInput.value = ((n * R * t) / p).toFixed(5);
+            } else if (n === null) {
+                if (t === 0) { errorDiv.innerText = "온도가 절대영도일 때 몰수를 구할 수 없습니다."; return; }
+                nInput.value = ((p * v) / (R * t)).toFixed(5);
+            } else if (t === null) {
+                if (n === 0) { errorDiv.innerText = "몰수가 0일 때 온도를 구할 수 없습니다."; return; }
+                tInput.value = ((p * v) / (n * R)).toFixed(5);
+            }
+        }
+
+        function resetGas() {
+            document.getElementById('gas-p').value = "";
+            document.getElementById('gas-v').value = "";
+            document.getElementById('gas-n').value = "";
+            document.getElementById('gas-t').value = "";
+            document.getElementById('gas-error').innerText = "";
+        }
+
+        // 6. 파동 방정식 계산 (v = f * l)
+        function calculateWave() {
+            const vInput = document.getElementById('wave-v');
+            const fInput = document.getElementById('wave-f');
+            const lInput = document.getElementById('wave-l');
+            const errorDiv = document.getElementById('wave-error');
+            errorDiv.innerText = "";
+
+            let v = vInput.value ? parseFloat(vInput.value) : null;
+            let f = fInput.value ? parseFloat(fInput.value) : null;
+            let l = lInput.value ? parseFloat(lInput.value) : null;
+
+            let inputs = [v, f, l].filter(val => val !== null).length;
+
+            if (inputs !== 2) {
+                errorDiv.innerText = "정확히 두 개의 값만 입력하세요.";
+                return;
+            }
+
+            if (v === null) {
+                vInput.value = (f * l).toFixed(4);
+            } else if (f === null) {
+                if (l === 0) { errorDiv.innerText = "파장이 0일 수 없습니다."; return; }
+                fInput.value = (v / l).toFixed(4);
+            } else if (l === null) {
+                if (f === 0) { errorDiv.innerText = "주파수가 0일 수 없습니다."; return; }
+                lInput.value = (v / f).toFixed(4);
+            }
+        }
+
+        function resetWave() {
+            document.getElementById('wave-v').value = "";
+            document.getElementById('wave-f').value = "";
+            document.getElementById('wave-l').value = "";
+            document.getElementById('wave-error').innerText = "";
+        }
+
+        // 7. 물질의 밀도 계산 (d = m / V)
+        function calculateDens() {
+            const dInput = document.getElementById('dens-d');
+            const mInput = document.getElementById('dens-m');
+            const vInput = document.getElementById('dens-v');
+            const errorDiv = document.getElementById('dens-error');
+            errorDiv.innerText = "";
+
+            let d = dInput.value ? parseFloat(dInput.value) : null;
+            let m = mInput.value ? parseFloat(mInput.value) : null;
+            let v = vInput.value ? parseFloat(vInput.value) : null;
+
+            let inputs = [d, m, v].filter(val => val !== null).length;
+
+            if (inputs !== 2) {
+                errorDiv.innerText = "정확히 두 개의 값만 입력하세요.";
+                return;
+            }
+
+            if (d === null) {
+                if (v === 0) { errorDiv.innerText = "부피는 0이 될 수 없습니다."; return; }
+                dInput.value = (m / v).toFixed(4);
+            } else if (m === null) {
+                mInput.value = (d * v).toFixed(4);
+            } else if (v === null) {
+                if (d === 0) { errorDiv.innerText = "밀도가 0일 수 없습니다."; return; }
+                vInput.value = (m / d).toFixed(4);
+            }
+        }
+
+        function resetDens() {
+            document.getElementById('dens-d').value = "";
+            document.getElementById('dens-m').value = "";
+            document.getElementById('dens-v').value = "";
+            document.getElementById('dens-error').innerText = "";
+        }
+
+
+        // ================= [단위 변환 시스템 자바스크립트] =================
+
+        // 1. 압력 실시간 단위 환산 (기준: atm)
+        const PRESSURE_FACTORS = {
+            atm: 1,
+            psi: 14.695949,
+            bar: 1.01325,
+            pa: 101325
+        };
+        function convertPressure(type) {
+            const atmEl = document.getElementById('unit-atm');
+            const psiEl = document.getElementById('unit-psi');
+            const barEl = document.getElementById('unit-bar');
+            const paEl = document.getElementById('unit-pa');
+
+            const val = parseFloat(document.getElementById('unit-' + type).value);
+            if (isNaN(val)) {
+                atmEl.value = psiEl.value = barEl.value = paEl.value = "";
+                return;
+            }
+
+            const atmValue = val / PRESSURE_FACTORS[type];
+
+            if (type !== 'atm') atmEl.value = (atmValue).toPrecision(8).replace(/\.?0+$/, "");
+            if (type !== 'psi') psiEl.value = (atmValue * PRESSURE_FACTORS.psi).toPrecision(8).replace(/\.?0+$/, "");
+            if (type !== 'bar') barEl.value = (atmValue * PRESSURE_FACTORS.bar).toPrecision(8).replace(/\.?0+$/, "");
+            if (type !== 'pa') paEl.value = (atmValue * PRESSURE_FACTORS.pa).toPrecision(8).replace(/\.?0+$/, "");
+        }
+        function resetPressureUnits() {
+            document.getElementById('unit-atm').value = "";
+            document.getElementById('unit-psi').value = "";
+            document.getElementById('unit-bar').value = "";
+            document.getElementById('unit-pa').value = "";
+        }
+
+        // 2. 에너지 실시간 단위 환산 (기준: J)
+        const ENERGY_FACTORS = {
+            j: 1,
+            cal: 0.239005736,
+            kcal: 0.000239005736,
+            wh: 0.000277777778
+        };
+        function convertEnergy(type) {
+            const jEl = document.getElementById('unit-j');
+            const calEl = document.getElementById('unit-cal');
+            const kcalEl = document.getElementById('unit-kcal');
+            const whEl = document.getElementById('unit-wh');
+
+            const val = parseFloat(document.getElementById('unit-' + type).value);
+            if (isNaN(val)) {
+                jEl.value = calEl.value = kcalEl.value = whEl.value = "";
+                return;
+            }
+
+            const jValue = val / ENERGY_FACTORS[type];
+
+            if (type !== 'j') jEl.value = (jValue).toPrecision(8).replace(/\.?0+$/, "");
+            if (type !== 'cal') calEl.value = (jValue * ENERGY_FACTORS.cal).toPrecision(8).replace(/\.?0+$/, "");
+            if (type !== 'kcal') kcalEl.value = (jValue * ENERGY_FACTORS.kcal).toPrecision(8).replace(/\.?0+$/, "");
+            if (type !== 'wh') whEl.value = (jValue * ENERGY_FACTORS.wh).toPrecision(8).replace(/\.?0+$/, "");
+        }
+        function resetEnergyUnits() {
+            document.getElementById('unit-j').value = "";
+            document.getElementById('unit-cal').value = "";
+            document.getElementById('unit-kcal').value = "";
+            document.getElementById('unit-wh').value = "";
+        }
+
+        // 3. 길이 실시간 단위 환산 (기준: m)
+        const LENGTH_FACTORS = {
+            m: 1,
+            cm: 100,
+            mm: 1000,
+            inch: 39.3700787
+        };
+        function convertLength(type) {
+            const mEl = document.getElementById('unit-m');
+            const cmEl = document.getElementById('unit-cm');
+            const mmEl = document.getElementById('unit-mm');
+            const inchEl = document.getElementById('unit-inch');
+
+            const val = parseFloat(document.getElementById('unit-' + type).value);
+            if (isNaN(val)) {
+                mEl.value = cmEl.value = mmEl.value = inchEl.value = "";
+                return;
+            }
+
+            const mValue = val / LENGTH_FACTORS[type];
+
+            if (type !== 'm') mEl.value = (mValue).toPrecision(8).replace(/\.?0+$/, "");
+            if (type !== 'cm') cmEl.value = (mValue * LENGTH_FACTORS.cm).toPrecision(8).replace(/\.?0+$/, "");
+            if (type !== 'mm') mmEl.value = (mValue * LENGTH_FACTORS.mm).toPrecision(8).replace(/\.?0+$/, "");
+            if (type !== 'inch') inchEl.value = (mValue * LENGTH_FACTORS.inch).toPrecision(8).replace(/\.?0+$/, "");
+        }
+        function resetLengthUnits() {
+            document.getElementById('unit-m').value = "";
+            document.getElementById('unit-cm').value = "";
+            document.getElementById('unit-mm').value = "";
+            document.getElementById('unit-inch').value = "";
+        }
+
+        // 4. 온도 변환 (수식 기반 변환, 절대온도 0K 한계 예외 처리 포함)
+        function convertTemperature(type) {
+            const cEl = document.getElementById('unit-c');
+            const fEl = document.getElementById('unit-f');
+            const kEl = document.getElementById('unit-k');
+            const errorDiv = document.getElementById('temp-error');
+            errorDiv.innerText = "";
+
+            const val = parseFloat(document.getElementById('unit-' + type).value);
+            if (isNaN(val)) {
+                cEl.value = fEl.value = kEl.value = "";
+                return;
+            }
+
+            let celsius = 0;
+
+            // 절대값 섭씨로 통합 변환
+            if (type === 'c') {
+                celsius = val;
+            } else if (type === 'f') {
+                celsius = (val - 32) / 1.8;
+            } else if (type === 'k') {
+                celsius = val - 273.15;
+            }
+
+            // 절대 영도(0 K, -273.15 °C) 이하 예외 감지 및 보정
+            if (celsius < -273.15) {
+                errorDiv.innerText = "경고: 온도는 절대영도(0 K) 미만으로 내려갈 수 없습니다.";
+                celsius = -273.15;
+            }
+
+            // 나머지 필드 업데이트
+            if (type !== 'c') cEl.value = parseFloat(celsius.toFixed(4));
+            if (type !== 'f') fEl.value = parseFloat((celsius * 1.8 + 32).toFixed(4));
+            if (type !== 'k') kEl.value = parseFloat((celsius + 273.15).toFixed(4));
+        }
+        function resetTempUnits() {
+            document.getElementById('unit-c').value = "";
+            document.getElementById('unit-f').value = "";
+            document.getElementById('unit-k').value = "";
+            document.getElementById('temp-error').innerText = "";
+        }
+    </script>
+</body>
+</html>
